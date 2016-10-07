@@ -1,0 +1,8 @@
+app:
+    build: app
+    environment:
+        - github_package_location:/github.io
+        - eea_packages_location: = "IT-systems"
+        - menu_yml : "_data/menu.yml"
+        - placeholder_start : '<div style="display:none" class="generated_start">generated items start</div>'
+        - placeholder_end : '<div style="display:none" class="generated_end">generated items end</div>'
