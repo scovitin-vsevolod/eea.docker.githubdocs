@@ -43,11 +43,12 @@ def lxml2md(tree):
     return html2md(lxml2html(tree))
 
 def loadReadme(repo_url):
-    repo_url = repo_url.split("\n")[0]
-    repo_name = repo_url.split("github.com/")[1]
-    readme_url = "https://raw.githubusercontent.com/%s/master/README.md" %repo_name
-    resp = urllib.urlopen(readme_url)
-    readme_md = resp.read()
+    resp = urllib.urlopen(repo_url)
+    full_html = resp.read()
+    html = lxml.html.fromstring(full_html)
+    body = html.find_class("markdown-body")[0]
+    body_text = lxml.html.tostring(body, 'utf-8')
+    readme_md = html2text.html2text(body_text)
     return readme_md
 
 def addTitleToReadme(md, repo_url):
