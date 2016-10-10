@@ -9,13 +9,20 @@ import markdown
 import lxml.html
 import re
 import html2text
+from dulwich import porcelain
+import shutil
 
-package_location = "../../IT-systems"
-menu_file = "../../_data/menu.yml"
+menu_file = "_data/menu.yml"
+landing_file = "IT-systems/index.md"
+docs_location = "IT-systems"
 menu_base = "/IT-systems/"
 menu_base_name = "IT-systems"
 placeholder_start = '<div style="display:none" class="generated_start">generated items start</div>'
 placeholder_end = '<div style="display:none" class="generated_end">generated items end</div>'
+
+package_folder_name = "docs"
+package_git_url = "git@github.com:zotya/zotya.github.io.git"
+#package_git_url = "https://github.com/zotya/zotya.github.io.git"
 
 def html2lxml(html):
     return lxml.html.fromstring(html)
@@ -52,17 +59,20 @@ def addTitleToReadme(md, repo_url):
     return md, title
 
 def loadMenu():
-    f = open(menu_file, 'r')
+    relative_menu_file = "%s/%s" %(package_folder_name, menu_file)
+    f = open(relative_menu_file, 'r')
     menu_str = f.read()
     f.close()
     menu = yaml.load(menu_str)
     return menu
 
-def saveMenu(menu):
-    os.remove(menu_file)
-    f = open(menu_file, "w")
+def saveMenu(menu, repo):
+    relative_menu_file = "%s/%s" %(package_folder_name, menu_file)
+    os.remove(relative_menu_file)
+    f = open(relative_menu_file, "w")
     f.write(yaml.dump(menu, default_flow_style=False))
     f.close()
+    porcelain.add(repo, menu_file)
 
 def build_submenu(parent, tree, repo_name):
     submenu = {}
@@ -74,7 +84,7 @@ def build_submenu(parent, tree, repo_name):
             submenu['subitems'].append(build_submenu(element.keys()[0], element.values()[0], repo_name))
     return submenu
 
-def updateMenu(md, repo_name):
+def updateMenu(md, repo_name, repo):
     available_items = ["h1", "h2", "h3", "h4", "h5", "h6"]
     menu = loadMenu()
     readme_tree = md2lxml(md)
@@ -126,27 +136,32 @@ def updateMenu(md, repo_name):
             new_it_systems_submenu_from_generated = sorted(new_it_systems_submenu_from_generated, key=lambda k:k['text'])
             submenu['subitems'] = new_it_systems_submenu_from_menu + new_it_systems_submenu_from_generated
 
-    saveMenu(menu)
+    saveMenu(menu, repo)
 
-def updateReadmePage(readme_md, repo_name):
-    package_dir = "%s/%s" %(package_location, repo_name)
-    index_file = "%s/index.md" %package_dir
+def updateReadmePage(readme_md, repo_name, repo):
+    relative_doc_dir = "%s/%s/%s" %(package_folder_name, docs_location, repo_name)
+    relative_doc_file = "%s/index.md" %relative_doc_dir
+    doc_file = "%s/%s/index.md" %(docs_location, repo_name)
+    should_add_to_git = False
     try:
-        os.stat(package_dir)
+        os.stat(relative_doc_dir)
     except:
-        os.mkdir(package_dir)
+        os.mkdir(relative_doc_dir)
+        should_add_to_git = True
 
     try:
-        os.remove(index_file)
+        os.remove(relative_doc_file)
     except OSError:
         pass
-    f = open(index_file, "w")
+    f = open(relative_doc_file, "w")
     f.write(readme_md)
     f.close()
+    if should_add_to_git:
+        porcelain.add(repo, doc_file)
 
-def updateLandingPage(readme_title):
-    package_index_file = "%s/index.md" %package_location
-    f = open(package_index_file, "r")
+def updateLandingPage(readme_title, repo):
+    relative_landing_file = "%s/%s" %(package_folder_name, landing_file);
+    f = open(relative_landing_file, "r")
     lines = f.read().splitlines()
     f.close()
 
@@ -161,22 +176,41 @@ def updateLandingPage(readme_title):
         if line == placeholder_start:
             current_slot = between_placeholder
 
-    between_placeholder.append("* %s" %readme_title)
+    new_line = "* %s" %readme_title
+    if new_line not in between_placeholder:
+        between_placeholder.append("* %s" %readme_title)
     between_placeholder.sort()
     new_lines = before_placeholder + between_placeholder + after_placeholder
-    f = open(package_index_file, "w")
+    f = open(relative_landing_file, "w")
     f.write("\n".join(new_lines))
     f.close()
-    pass
+    porcelain.add(repo, landing_file)
 
 def update(repo_url):
+    try:
+        shutil.rmtree(package_folder_name)
+    except:
+        pass
+    repo = porcelain.clone(package_git_url, package_folder_name)
+
+
     repo_url = repo_url.split("\n")[0]
     repo_name = repo_url.split('/')[-1]
     readme_md = loadReadme(repo_url)
     readme_md, readme_title = addTitleToReadme(readme_md, repo_url)
-    updateMenu(readme_md, repo_name)
-    updateReadmePage(readme_md, repo_name)
-    updateLandingPage(readme_title)
+    updateMenu(readme_md, repo_name, repo)
+    updateReadmePage(readme_md, repo_name, repo)
+
+    updateLandingPage(readme_title, repo)
+
+    open("docs/testfile", "w").write("data")
+    porcelain.add(repo, "testfile")
+
+    porcelain.commit(repo, b"updated docs for %s" %repo_name)
+    refs_path = b"refs/heads/master"
+    porcelain.push(repo, package_git_url, b"HEAD:" + refs_path)
+
+
 
 if __name__ == '__main__':
     for arg in sys.argv[1:]:
