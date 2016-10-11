@@ -12,17 +12,27 @@ import html2text
 from dulwich import porcelain
 import shutil
 
-menu_file = "_data/menu.yml"
-landing_file = "IT-systems/index.md"
-docs_location = "IT-systems"
-menu_base = "/IT-systems/"
-menu_base_name = "IT-systems"
-placeholder_start = '<div style="display:none" class="generated_start">generated items start</div>'
-placeholder_end = '<div style="display:none" class="generated_end">generated items end</div>'
+menu_file = os.environ.get('MENU_FILE', "_data/menu.yml")
+landing_file = os.environ.get('LANDING_FILE', "IT-systems/index.md")
+docs_location = os.environ.get('DOCS_LOCATION', "IT-systems")
+menu_base = os.environ.get('MENU_BASE', "/IT-systems/")
+menu_base_name = os.environ.get('MENU_BASE_NAME', "IT-systems")
+placeholder_start = os.environ.get('PLACEHOLDER_START', '<div style="display:none" class="generated_start">generated items start</div>')
+placeholder_end = os.environ.get('PLACEHOLDER_END', '<div style="display:none" class="generated_end">generated items end</div>')
+package_folder_name = os.environ.get('PACKAGE_FOLDER_NAME', "docs")
+package_git_url = os.environ.get('PACKAGE_GIT_URL', "git@github.com:zotya/zotya.github.io.git")
+refs_path = os.environ.get('REFS_PATH', "refs/heads/master")
 
-package_folder_name = "docs"
-package_git_url = "git@github.com:zotya/zotya.github.io.git"
-#package_git_url = "https://github.com/zotya/zotya.github.io.git"
+print menu_file
+print landing_file
+print docs_location
+print menu_base
+print menu_base_name
+print placeholder_start
+print placeholder_end
+print package_folder_name
+print package_git_url
+print refs_path
 
 def html2lxml(html):
     return lxml.html.fromstring(html)
@@ -188,12 +198,12 @@ def updateLandingPage(readme_title, repo):
     porcelain.add(repo, landing_file)
 
 def update(repo_url):
+    print("Updating docs for: %s" %repo_url)
     try:
         shutil.rmtree(package_folder_name)
     except:
         pass
     repo = porcelain.clone(package_git_url, package_folder_name)
-
 
     repo_url = repo_url.split("\n")[0]
     repo_name = repo_url.split('/')[-1]
@@ -204,12 +214,9 @@ def update(repo_url):
 
     updateLandingPage(readme_title, repo)
 
-    open("docs/testfile", "w").write("data")
-    porcelain.add(repo, "testfile")
-
-    porcelain.commit(repo, b"updated docs for %s" %repo_name)
-    refs_path = b"refs/heads/master"
-    porcelain.push(repo, package_git_url, b"HEAD:" + refs_path)
+    porcelain.commit(repo, b"Updated docs for %s" %repo_name)
+    refs_path_b = b"%s" %refs_path
+    porcelain.push(repo, package_git_url, b"HEAD:" + refs_path_b)
 
 
 

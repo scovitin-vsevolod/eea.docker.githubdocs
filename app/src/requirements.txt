@@ -1,4 +1,5 @@
 pyyaml
 html2text
 Markdown
+lxml
 dulwich
