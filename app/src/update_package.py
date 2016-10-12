@@ -17,22 +17,11 @@ landing_file = os.environ.get('LANDING_FILE', "IT-systems/index.md")
 docs_location = os.environ.get('DOCS_LOCATION', "IT-systems")
 menu_base = os.environ.get('MENU_BASE', "/IT-systems/")
 menu_base_name = os.environ.get('MENU_BASE_NAME', "IT-systems")
-placeholder_start = os.environ.get('PLACEHOLDER_START', '<div style="display:none" class="generated_start">generated items start</div>')
-placeholder_end = os.environ.get('PLACEHOLDER_END', '<div style="display:none" class="generated_end">generated items end</div>')
+placeholder_start = os.environ.get('PLACEHOLDER_START', '<div style="display:none" class="generated_start"></div>')
+placeholder_end = os.environ.get('PLACEHOLDER_END', '<div style="display:none" class="generated_end"></div>')
 package_folder_name = os.environ.get('PACKAGE_FOLDER_NAME', "docs")
-package_git_url = os.environ.get('PACKAGE_GIT_URL', "git@github.com:zotya/zotya.github.io.git")
-refs_path = os.environ.get('REFS_PATH', "refs/heads/master")
-
-print menu_file
-print landing_file
-print docs_location
-print menu_base
-print menu_base_name
-print placeholder_start
-print placeholder_end
-print package_folder_name
-print package_git_url
-print refs_path
+package_git_url = os.environ.get('PACKAGE_GIT_URL', "git@github.com:eea/docs.git")
+package_git_branch = os.environ.get('PACKAGE_GIT_BRANCH', "gh-pages-73482")
 
 def html2lxml(html):
     return lxml.html.fromstring(html)
@@ -204,7 +193,8 @@ def update(repo_url):
     except:
         pass
     repo = porcelain.clone(package_git_url, package_folder_name)
-
+    refspecs = b"HEAD:refs/heads/%s" %package_git_branch
+    porcelain.pull(repo, package_git_url, refspecs = refspecs)
     repo_url = repo_url.split("\n")[0]
     repo_name = repo_url.split('/')[-1]
     readme_md = loadReadme(repo_url)
@@ -214,9 +204,17 @@ def update(repo_url):
 
     updateLandingPage(readme_title, repo)
 
-    porcelain.commit(repo, b"Updated docs for %s" %repo_name)
-    refs_path_b = b"%s" %refs_path
-    porcelain.push(repo, package_git_url, b"HEAD:" + refs_path_b)
+    staged = porcelain.status(repo).staged
+    if (len(staged['add']) == 0) and (len(staged['modify']) == 0):
+        print("No changes to commit")
+    else:
+        print("Commiting changes for %s" %repo_name)
+        porcelain.commit(repo, b"Updated docs for %s" %repo_name)
+        porcelain.push(repo, package_git_url, refspecs = refspecs)
+    try:
+        shutil.rmtree(package_folder_name)
+    except:
+        pass
 
 
 
