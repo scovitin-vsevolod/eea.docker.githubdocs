@@ -13,6 +13,14 @@ During the first time deployement, create and edit the .gitconfig and the id_rsa
 
     $ docker-compose run --rm app https://github.com/collective/<package name>
 
+## Add or update the readme for more packages:
+
+    $ docker-compose run --rm app https://github.com/collective/<package name1> https://github.com/collective/<package name2>
+
+## Add or update all packages specified in the whitelist file:
+
+    $ docker-compose run --rm app `whitelist`
+
 ## Available environment variables:
 
 <table>
