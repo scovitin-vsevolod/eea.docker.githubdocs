@@ -19,7 +19,7 @@ During the first time deployement, create and edit the .gitconfig and the id_rsa
 
 ## Add or update all packages specified in the whitelist file:
 
-    $ docker-compose run --rm app `whitelist`
+    $ docker-compose run --rm app `cat whitelist`
 
 ## Available environment variables:
 
