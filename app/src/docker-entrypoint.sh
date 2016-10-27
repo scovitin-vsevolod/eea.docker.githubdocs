@@ -7,10 +7,10 @@ if [ ! -e /root/.ssh/known_hosts ]; then
   chmod 0700 /root/.ssh
 fi
 
-# SSH key
+# SSH key from SSH_KEY env
 if [ ! -e /root/.ssh/id_rsa ]; then
-  if [ -e /src/id_rsa ]; then
-    cp /src/id_rsa /root/.ssh/
+  if [ ! -z "$SSH_KEY" ]; then
+    printf "$SSH_KEY" > /root/.ssh/id_rsa
     chmod 0600 /root/.ssh/id_rsa
   fi
 fi

@@ -148,6 +148,16 @@ During the first time deployement, create and edit the .gitconfig and the id_rsa
                 gh-pages
             </td>
         </tr>
+        <tr>
+            <td>
+                SSH_KEY
+            </td>
+            <td>
+                Provide the private SSH key as environment variable
+            </td>
+            <td>
+            </td>
+        </tr>
     </tbody>
 </table>
 
