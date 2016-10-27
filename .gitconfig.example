@@ -1,0 +1,8 @@
+[http]
+	sslVerify = false
+[user]
+	name = <name>
+	email = <email>
+[push]
+	followTags = true
+	default = simple

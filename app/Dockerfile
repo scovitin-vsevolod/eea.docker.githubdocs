@@ -6,6 +6,7 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 COPY src /src
+COPY .gitconfig /root/
 
 RUN pip install -r /src/requirements.txt
 
