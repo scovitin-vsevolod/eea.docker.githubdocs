@@ -21,7 +21,7 @@ placeholder_start = os.environ.get('PLACEHOLDER_START', '<div style="display:non
 placeholder_end = os.environ.get('PLACEHOLDER_END', '<div style="display:none" class="generated_end"></div>')
 package_folder_name = os.environ.get('PACKAGE_FOLDER_NAME', "docs")
 package_git_url = os.environ.get('PACKAGE_GIT_URL', "git@github.com:eea/docs.git")
-package_git_branch = os.environ.get('PACKAGE_GIT_BRANCH', "gh-pages-73482")
+package_git_branch = os.environ.get('PACKAGE_GIT_BRANCH', "gh-pages")
 
 def html2lxml(html):
     return lxml.html.fromstring(html)

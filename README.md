@@ -145,7 +145,7 @@ During the first time deployement, create and edit the .gitconfig and the id_rsa
                 The branch where we want to make the commit
             </td>
             <td>
-                gh-pages-73482
+                gh-pages
             </td>
         </tr>
     </tbody>

@@ -11,4 +11,4 @@ COPY .gitconfig /root/
 RUN pip install -r /src/requirements.txt
 
 WORKDIR /src
-ENTRYPOINT ["python", "update_package.py"]
+ENTRYPOINT ["/src/docker-entrypoint.sh"]

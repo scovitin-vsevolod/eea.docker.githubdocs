@@ -10,7 +10,7 @@ app:
         - PLACEHOLDER_END=<div style="display:none" class="generated_end"></div>
         - PACKAGE_FOLDER_NAME=docs
         - PACKAGE_GIT_URL=git@github.com:eea/docs.git
-        - PACKAGE_GIT_BRANCH=gh-pages-73482
+        - PACKAGE_GIT_BRANCH=gh-pages
     volumes:
         - ./.gitconfig:/root/.gitconfig:z
         - ./id_rsa:/root/.ssh/id_rsa:z
