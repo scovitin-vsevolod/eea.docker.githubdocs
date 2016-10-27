@@ -1,0 +1,9 @@
+[http]
+	sslVerify = false
+[user]
+	email = eea-github@googlegroups.com
+	name = EEA Jenkins
+[push]
+	default = simple
+[core]
+	autocrlf = false
