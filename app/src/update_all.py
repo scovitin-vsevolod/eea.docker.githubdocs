@@ -87,7 +87,7 @@ class Update(object):
 
             fork = repo.get("fork", "")
             if fork:
-                self.logger("Skipping forked repo %s", fork)
+                self.logger.info("Skipping forked repo %s", name)
                 continue
 
             self.update_repo(name)
