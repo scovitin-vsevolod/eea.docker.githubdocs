@@ -84,6 +84,12 @@ class Update(object):
             name = repo.get('html_url', '')
             if not name:
                 continue
+
+            fork = repo.get("fork", "")
+            if fork:
+                self.logger("Skipping forked repo %s", fork)
+                continue
+
             self.update_repo(name)
 
         end = datetime.now()
