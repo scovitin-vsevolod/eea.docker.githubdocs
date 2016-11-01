@@ -9,6 +9,10 @@ Clone the repository
 
 During the first time deployement, create and edit the .gitconfig and the id_rsa files
 
+## Add or update the readme for all packages:
+
+    $ docker run -it --rm -v $(pwd)/id_rsa:/root/.ssh/id_rsa eeacms/githubdocs --repo "https://api.github.com/orgs/eea" --skip "bise githubdocs ^docs$"
+
 ## Add or update the readme for a package:
 
     $ docker-compose run --rm app https://github.com/collective/<package name>

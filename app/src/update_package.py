@@ -186,8 +186,13 @@ def updateLandingPage(readme_title, repo):
     f.close()
     porcelain.add(repo, landing_file)
 
-def update(repo_url):
-    print("Updating docs for: %s" %repo_url)
+
+def update(repo_url, logger=None):
+    if logger:
+        logger.info("Updating docs for: %s", repo_url)
+    else:
+        print("Updating docs for: %s" % repo_url)
+
     try:
         shutil.rmtree(package_folder_name)
     except:
@@ -206,17 +211,24 @@ def update(repo_url):
 
     staged = porcelain.status(repo).staged
     if (len(staged['add']) == 0) and (len(staged['modify']) == 0):
-        print("No changes to commit")
+        if logger:
+            logger.info("No changes to commit")
+        else:
+            print("No changes to commit")
     else:
-        print("Commiting changes for %s" %repo_name)
-        porcelain.commit(repo, b"Updated docs for %s" %repo_name)
+        if logger:
+            logger.info("Commiting changes for %s", repo_name)
+        else:
+            print("Commiting changes for %s" % repo_name)
+        porcelain.commit(repo, b"Updated docs for %s" % repo_name)
         porcelain.push(repo, package_git_url, refspecs = refspecs)
     try:
         shutil.rmtree(package_folder_name)
-    except:
-        pass
-
-
+    except Exception, err:
+        if logger:
+            logger.exception(err)
+        else:
+            print(err)
 
 if __name__ == '__main__':
     for arg in sys.argv[1:]:

@@ -15,6 +15,11 @@ if [ ! -e /root/.ssh/id_rsa ]; then
   fi
 fi
 
+# Generate all docs: --repo REPO --skip SKIP
+if [[ "$1" == "-"* ]]; then
+  exec python update_all.py "$@"
+fi
+
 # Generate docs
 if [[ "$1" == "http"* ]] || [[ "$1" == "git@"* ]]; then
   exec python update_package.py "$@"
