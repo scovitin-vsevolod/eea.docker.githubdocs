@@ -65,7 +65,7 @@ class Update(object):
         """
         for skip in self.blacklist:
             if re.search(skip, name):
-                self.logger("Skipping blacklisted repo %s", name)
+                self.logger.info("Skipping blacklisted repo %s", name)
                 return False
 
         try:
