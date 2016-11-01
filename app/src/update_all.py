@@ -66,34 +66,36 @@ class Update(object):
         for skip in self.blacklist:
             if re.search(skip, name):
                 self.logger("Skipping blacklisted repo %s", name)
-                return
+                return False
 
         try:
             update_package.update(name, logger=self.logger)
         except Exception, err:
             self.logger.exception(err)
+            return False
+        return True
 
     def update(self):
         """ Sync all repos
         """
-        count = len(self.repos)
-        self.logger.info('Syncing %s repositories', count)
+        total = len(self.repos)
+        self.logger.info('Updating docs for %s repositories', total)
         start = datetime.now()
 
+        count = 0
         for repo in self.repos:
             name = repo.get('html_url', '')
-            if not name:
-                continue
-
             fork = repo.get("fork", "")
             if fork:
                 self.logger.info("Skipping forked repo %s", name)
                 continue
 
-            self.update_repo(name)
+            success = self.update_repo(name)
+            if success:
+                count += 1
 
         end = datetime.now()
-        self.logger.info('DONE Syncing %s repositories in %s seconds',
+        self.logger.info('Updated docs for %s repositories in %s seconds',
                          count, (end - start).seconds)
 
     def __call__(self):
