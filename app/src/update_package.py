@@ -42,21 +42,38 @@ def lxml2md(tree):
     return html2md(lxml2html(tree))
 
 def loadReadme(repo_url):
-    resp = urllib.urlopen(repo_url)
-    full_html = resp.read()
-    html = lxml.html.fromstring(full_html)
-    body = html.find_class("markdown-body")[0]
-    body_text = lxml.html.tostring(body, 'utf-8')
-    readme_md = html2text.html2text(body_text)
-    return readme_md
+    for name in ('README.rst', 'README.md'):
+        raw_repo_url = repo_url.replace('github.com', 'raw.githubusercontent.com')
+        url = os.path.join(raw_repo_url, 'master', name)
+        resp = urllib.urlopen(url)
+        if resp.getcode() >= 300:
+            continue
+        resp = urllib.urlopen(repo_url)
+        full_html = resp.read()
+        html = lxml.html.fromstring(full_html)
+        body = html.find_class("markdown-body")[0]
+        body_text = lxml.html.tostring(body, 'utf-8')
+        readme_md = html2text.html2text(body_text)
+        break
+    else:
+        readme_md = ""
+    return readme_md, name
 
 def addTitleToReadme(md, repo_url):
     tree = md2lxml(md)
-    h1 = tree.find("h1").text
+    title_tag = tree.find("h1")
+    if title_tag is None:
+        title_tag = tree.find("h2")
+    title_text = title_tag.text
     package_name = repo_url.split("/")[-1]
-    title = h1 or package_name
+    title = title_text or package_name
     md = "---\ntitle: %s\n---\n%s" %(title, md)
     return md, title
+
+def addEditLink(md, name, repo_url):
+    readme_url = os.path.join(repo_url, 'edit/master', name)
+    edit_tag = '[Edit this page](%s)\n' % readme_url
+    return md + edit_tag
 
 def loadMenu():
     relative_menu_file = "%s/%s" %(package_folder_name, menu_file)
@@ -142,22 +159,9 @@ def updateReadmePage(readme_md, repo_name, repo):
     relative_doc_dir = "%s/%s/%s" %(package_folder_name, docs_location, repo_name)
     relative_doc_file = "%s/index.md" %relative_doc_dir
     doc_file = "%s/%s/index.md" %(docs_location, repo_name)
-    should_add_to_git = False
-    try:
-        os.stat(relative_doc_dir)
-    except:
-        os.mkdir(relative_doc_dir)
-        should_add_to_git = True
-
-    try:
-        os.remove(relative_doc_file)
-    except OSError:
-        pass
-    f = open(relative_doc_file, "w")
-    f.write(readme_md)
-    f.close()
-    if should_add_to_git:
-        porcelain.add(repo, doc_file)
+    with open(relative_doc_file, "w") as fd:
+        fd.write(readme_md)
+    porcelain.add(repo, doc_file)
 
 def updateLandingPage(readme_title, repo):
     relative_landing_file = "%s/%s" %(package_folder_name, landing_file);
@@ -202,8 +206,9 @@ def update(repo_url, logger=None):
     porcelain.pull(repo, package_git_url, refspecs = refspecs)
     repo_url = repo_url.split("\n")[0]
     repo_name = repo_url.split('/')[-1]
-    readme_md = loadReadme(repo_url)
+    readme_md, readme_name = loadReadme(repo_url)
     readme_md, readme_title = addTitleToReadme(readme_md, repo_url)
+    readme_md = addEditLink(readme_md, readme_name, repo_url)
     updateMenu(readme_md, repo_name, repo)
     updateReadmePage(readme_md, repo_name, repo)
 
