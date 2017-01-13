@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding=utf-8
 
 import sys
 import urllib
@@ -23,23 +24,30 @@ package_folder_name = os.environ.get('PACKAGE_FOLDER_NAME', "docs")
 package_git_url = os.environ.get('PACKAGE_GIT_URL', "git@github.com:eea/docs.git")
 package_git_branch = os.environ.get('PACKAGE_GIT_BRANCH', "gh-pages")
 
+
 def html2lxml(html):
     return lxml.html.fromstring(html)
+
 
 def lxml2html(tree):
     return lxml.html.tostring(lxml)
 
+
 def html2md(html):
     return html2text.html2text(html)
+
 
 def md2html(md):
     return markdown.markdown(md)
 
+
 def md2lxml(md):
     return html2lxml(md2html(md))
 
+
 def lxml2md(tree):
     return html2md(lxml2html(tree))
+
 
 def loadReadme(repo_url):
     for name in ('README.rst', 'README.md'):
@@ -59,6 +67,7 @@ def loadReadme(repo_url):
         readme_md = ""
     return readme_md, name
 
+
 def addTitleToReadme(md, repo_url):
     tree = md2lxml(md)
     title_tag = tree.find("h1")
@@ -67,21 +76,43 @@ def addTitleToReadme(md, repo_url):
     title_text = title_tag.text
     package_name = repo_url.split("/")[-1]
     title = title_text or package_name
-    md = "---\ntitle: %s\n---\n%s" %(title, md)
-    return md, title
+
+    # Add repo id/url
+    mdlines = md.splitlines()
+
+    mdlines.insert(2, "")
+    mdlines.insert(2, '<small class="github">[{name}]({url})</small>'.format(
+        name=package_name,
+        url=repo_url))
+    mdlines.insert(2, "")
+
+    # Add gh-pages title
+    mdlines = [
+        "---",
+        "title: {title}".format(title=title),
+        "---"
+    ] + mdlines
+
+    return '\n'.join(mdlines), title
+
 
 def addEditLink(md, name, repo_url):
-    readme_url = os.path.join(repo_url, 'edit/master', name)
-    edit_tag = '[Edit this page](%s)\n' % readme_url
-    return md + edit_tag
+    readme_url = os.path.join(repo_url, "edit/master", name)
+    edit_tag = "[Edit this page]({url})".format(url=readme_url)
+    return '\n'.join((md, edit_tag, ''))
+
 
 def loadMenu():
-    relative_menu_file = "%s/%s" %(package_folder_name, menu_file)
+    relative_menu_file = "{name}/{menu}".format(
+        name=package_folder_name,
+        menu=menu_file
+    )
     f = open(relative_menu_file, 'r')
     menu_str = f.read()
     f.close()
     menu = yaml.load(menu_str)
     return menu
+
 
 def saveMenu(menu, repo):
     relative_menu_file = "%s/%s" %(package_folder_name, menu_file)
@@ -90,6 +121,7 @@ def saveMenu(menu, repo):
     f.write(yaml.dump(menu, default_flow_style=False))
     f.close()
     porcelain.add(repo, menu_file)
+
 
 def build_submenu(parent, tree, repo_name):
     submenu = {}
@@ -100,6 +132,7 @@ def build_submenu(parent, tree, repo_name):
         for element in tree:
             submenu['subitems'].append(build_submenu(element.keys()[0], element.values()[0], repo_name))
     return submenu
+
 
 def updateMenu(md, repo_name, repo):
     available_items = ["h1", "h2", "h3", "h4", "h5", "h6"]
@@ -155,6 +188,7 @@ def updateMenu(md, repo_name, repo):
 
     saveMenu(menu, repo)
 
+
 def updateReadmePage(readme_md, repo_name, repo):
     relative_doc_dir = "%s/%s/%s" %(package_folder_name, docs_location, repo_name)
     relative_doc_file = "%s/index.md" %relative_doc_dir
@@ -162,6 +196,7 @@ def updateReadmePage(readme_md, repo_name, repo):
     with open(relative_doc_file, "w") as fd:
         fd.write(readme_md)
     porcelain.add(repo, doc_file)
+
 
 def updateLandingPage(readme_title, repo):
     relative_landing_file = "%s/%s" %(package_folder_name, landing_file);
@@ -234,6 +269,7 @@ def update(repo_url, logger=None):
             logger.exception(err)
         else:
             print(err)
+
 
 if __name__ == '__main__':
     for arg in sys.argv[1:]:
