@@ -190,9 +190,13 @@ def updateMenu(md, repo_name, repo):
 
 
 def updateReadmePage(readme_md, repo_name, repo):
-    relative_doc_dir = "%s/%s/%s" %(package_folder_name, docs_location, repo_name)
-    relative_doc_file = "%s/index.md" %relative_doc_dir
-    doc_file = "%s/%s/index.md" %(docs_location, repo_name)
+    relative_doc_dir = "%s/%s/%s" % (package_folder_name, docs_location, repo_name)
+    try:
+        os.makedirs(relative_doc_dir)
+    except Exception as err:
+        print(err)
+    relative_doc_file = "%s/index.md" % relative_doc_dir
+    doc_file = "%s/%s/index.md" % (docs_location, repo_name)
     with open(relative_doc_file, "w") as fd:
         fd.write(readme_md)
     porcelain.add(repo, doc_file)
