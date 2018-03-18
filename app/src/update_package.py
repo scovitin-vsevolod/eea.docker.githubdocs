@@ -50,7 +50,7 @@ def lxml2md(tree):
 
 
 def loadReadme(repo_url):
-    for name in ('README.rst', 'README.md'):
+    for name in ('README.rst', 'README.md', 'readme.rst', 'readme.md'):
         raw_repo_url = repo_url.replace('github.com', 'raw.githubusercontent.com')
         url = os.path.join(raw_repo_url, 'master', name)
         resp = urllib.urlopen(url)
@@ -120,7 +120,9 @@ def saveMenu(menu, repo):
     f = open(relative_menu_file, "w")
     f.write(yaml.dump(menu, default_flow_style=False))
     f.close()
-    porcelain.add(repo, menu_file)
+    # porcelain.add(repo, menu_file)
+    # see https://github.com/dulwich/dulwich/issues/575
+    repo.stage(menu_file)
 
 
 def build_submenu(parent, tree, repo_name):
@@ -199,7 +201,9 @@ def updateReadmePage(readme_md, repo_name, repo):
     doc_file = "%s/%s/index.md" % (docs_location, repo_name)
     with open(relative_doc_file, "w") as fd:
         fd.write(readme_md)
-    porcelain.add(repo, doc_file)
+    # porcelain.add(repo, doc_file)
+    # see https://github.com/dulwich/dulwich/issues/575
+    repo.stage(doc_file)
 
 
 def updateLandingPage(readme_title, repo):
@@ -227,7 +231,9 @@ def updateLandingPage(readme_title, repo):
     f = open(relative_landing_file, "w")
     f.write("\n".join(new_lines))
     f.close()
-    porcelain.add(repo, landing_file)
+    # porcelain.add(repo, landing_file)
+    # see https://github.com/dulwich/dulwich/issues/575
+    repo.stage(landing_file)
 
 
 def update(repo_url, logger=None):
