@@ -1,16 +1,25 @@
-app:
-    build: app
-    environment:
-        - MENU_FILE=_data/menu.yml
-        - LANDING_FILE=IT-systems/index.md
-        - DOCS_LOCATION=IT-systems
-        - MENU_BASE=/IT-systems/
-        - MENU_BASE_NAME=IT-systems
-        - PLACEHOLDER_START=<div style="display:none" class="generated_start"></div>
-        - PLACEHOLDER_END=<div style="display:none" class="generated_end"></div>
-        - PACKAGE_FOLDER_NAME=docs
-        - PACKAGE_GIT_URL=git@github.com:eea/docs.git
-        - PACKAGE_GIT_BRANCH=gh-pages
-    volumes:
-        - ./.gitconfig:/root/.gitconfig:z
-        - ./id_rsa:/root/.ssh/id_rsa:z
+version: '2.0'
+
+services:
+    app:
+        build: app
+        environment:
+            - MENU_FILE=_data/menu.yml
+            - LANDING_FILE=IT-systems/index.md
+            - DOCS_LOCATION=IT-systems
+            - MENU_BASE=/IT-systems/
+            - MENU_BASE_NAME=IT-systems
+            - PLACEHOLDER_START=<div style="display:none" class="generated_start"></div>
+            - PLACEHOLDER_END=<div style="display:none" class="generated_end"></div>
+            - PACKAGE_FOLDER_NAME=/src/docs
+            - PACKAGE_GIT_URL=git@github.com:melish/docs.git
+            - PACKAGE_GIT_BRANCH=gh-pages
+        command: ["--repo", "https://api.github.com/orgs/eu-osha", "--skip", "Euphorie archive.oira.community.buildout"]
+        # entrypoint: ["tail", "-f", "/dev/null"]
+        # command: ["https://github.com/EU-OSHA/hwc18"]
+        volumes:
+            - ./.gitconfig:/root/.gitconfig:z
+            - keystore:/root/.ssh:z
+
+volumes:
+    keystore:
