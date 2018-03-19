@@ -196,7 +196,8 @@ def updateReadmePage(readme_md, repo_name, repo):
     try:
         os.makedirs(relative_doc_dir)
     except Exception as err:
-        print(err)
+        if err.errno != os.errno.EEXIST:
+            print(err)
     relative_doc_file = "%s/index.md" % relative_doc_dir
     doc_file = "%s/%s/index.md" % (docs_location, repo_name)
     with open(relative_doc_file, "w") as fd:
@@ -256,9 +257,7 @@ def update(repo_url, logger=None):
     readme_md = addEditLink(readme_md, readme_name, repo_url)
     updateMenu(readme_md, repo_name, repo)
     updateReadmePage(readme_md, repo_name, repo)
-
     updateLandingPage(readme_title, repo)
-
     staged = porcelain.status(repo).staged
     if (len(staged['add']) == 0) and (len(staged['modify']) == 0):
         if logger:

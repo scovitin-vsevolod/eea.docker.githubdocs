@@ -10,7 +10,7 @@ fi
 # SSH key from SSH_KEY env
 if [ ! -e /root/.ssh/id_rsa ]; then
   if [ ! -z "$SSH_KEY" ]; then
-    printf "$SSH_KEY" > /root/.ssh/id_rsa
+    echo "$SSH_KEY" > /root/.ssh/id_rsa
     chmod 0600 /root/.ssh/id_rsa
   fi
 fi
