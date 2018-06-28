@@ -2,4 +2,4 @@ pyyaml
 html2text
 Markdown
 lxml
-dulwich
+dulwich==0.19.2
