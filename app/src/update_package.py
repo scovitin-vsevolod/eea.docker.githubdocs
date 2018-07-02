@@ -23,6 +23,7 @@ placeholder_end = os.environ.get('PLACEHOLDER_END', '<div style="display:none" c
 package_folder_name = os.environ.get('PACKAGE_FOLDER_NAME', "docs")
 package_git_url = os.environ.get('PACKAGE_GIT_URL', "git@github.com:eea/docs.git")
 package_git_branch = os.environ.get('PACKAGE_GIT_BRANCH', "gh-pages")
+source_git_branch = os.environ.get('SOURCE_GIT_BRANCH', "master")
 
 
 def html2lxml(html):
@@ -52,13 +53,14 @@ def lxml2md(tree):
 def loadReadme(repo_url):
     for name in ('README.rst', 'README.md', 'readme.rst', 'readme.md'):
         raw_repo_url = repo_url.replace('github.com', 'raw.githubusercontent.com')
-        url = os.path.join(raw_repo_url, 'master', name)
+        url = os.path.join(raw_repo_url, source_git_branch, name)
         resp = urllib.urlopen(url)
         if resp.getcode() >= 300:
             continue
         readme_md = resp.read()
         readme_md = unicode(readme_md, 'utf-8')
-        readme_md = readme_md.replace("–", "-")
+        resp = urllib.urlopen(repo_url)
+        # readme_md = readme_md.replace("–", "-")
         full_html = resp.read()
         html = lxml.html.fromstring(full_html)
         body = html.find_class("markdown-body")[0]
