@@ -56,12 +56,14 @@ def loadReadme(repo_url):
         resp = urllib.urlopen(url)
         if resp.getcode() >= 300:
             continue
-        resp = urllib.urlopen(repo_url)
+        readme_md = resp.read()
+        readme_md = unicode(readme_md, 'utf-8')
+        readme_md = readme_md.replace("–", "-")
         full_html = resp.read()
         html = lxml.html.fromstring(full_html)
         body = html.find_class("markdown-body")[0]
         body_text = lxml.html.tostring(body, 'utf-8')
-        readme_md = html2text.html2text(body_text)
+        # readme_md = html2text.html2text(body_text)
         break
     else:
         readme_md = ""
