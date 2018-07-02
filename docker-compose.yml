@@ -11,6 +11,7 @@ app:
         - PACKAGE_FOLDER_NAME=docs
         - PACKAGE_GIT_URL=git@github.com:melish/docs.git
         - PACKAGE_GIT_BRANCH=gh-pages
+        - SOURCE_GIT_BRANCH=develop
     #command: ["--repo", "https://api.github.com/orgs/eu-osha", "--skip", "Euphorie archive.oira.community.buildout"]
     command: ["https://github.com/eu-osha/osha-website"]
     #entrypoint: ["tail", "-f", "/dev/null"]
