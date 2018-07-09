@@ -133,6 +133,7 @@ def build_submenu(parent, tree, repo_name):
     submenu = {}
     submenu['text'] = parent
     submenu['url'] = "%s%s/#%s" %(menu_base, repo_name, re.sub('\s+', '-', parent.lower()))
+    submenu['url'] = submenu['url'].replace(",", "")
     if len(tree) > 0:
         submenu['subitems'] = []
         for element in tree:
@@ -172,6 +173,7 @@ def updateMenu(md, repo_name, repo):
     new_menu_item = build_submenu(menu_item_tree[0].keys()[0], menu_item_tree[0].values()[0], repo_name)
     new_menu_item['source'] = 'generated'
     new_menu_item['url'] = new_menu_item['url'].split('/#')[0]
+    new_menu_item['url'] = new_menu_item['url'].replace(",", "")
 
     for submenu in menu:
         if submenu['text'] == menu_base_name:
